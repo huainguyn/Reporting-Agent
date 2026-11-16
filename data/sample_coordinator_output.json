@@ -1,0 +1,48 @@
+{
+  "project_id": "demo-ecommerce",
+  "run_id": "run-demo-001",
+  "project_name": "Demo E-commerce",
+  "status": "COMPLETED",
+  "summary": "Coordinator đã tổng hợp kết quả phân tích kiến trúc và mã nguồn. Có một dependency vi phạm quy tắc phân tầng và một trường hợp cần xác minh thêm.",
+  "findings": [
+    {
+      "issue_id": "VIO-001",
+      "status": "VIOLATION",
+      "source_module": "UserController",
+      "target_module": "UserRepository",
+      "confidence": 0.94,
+      "rule_description": "Presentation không được truy cập trực tiếp Data; cần đi qua Service.",
+      "evidence": [{"file_path": "src/presentation/UserController.java", "line_start": 24, "description": "UserController tham chiếu trực tiếp UserRepository."}]
+    },
+    {
+      "issue_id": "REV-002",
+      "status": "REVIEW",
+      "source_module": "OrderService",
+      "target_module": "LegacyPaymentModule",
+      "confidence": 0.58,
+      "description": "Chưa đủ thông tin để kết luận dependency có phù hợp kiến trúc hay không."
+    },
+    {
+      "issue_id": "CMP-003",
+      "status": "COMPLIANT",
+      "source_module": "OrderService",
+      "target_module": "OrderRepository",
+      "confidence": 0.98,
+      "description": "Dependency phù hợp với quy tắc kiến trúc."
+    }
+  ],
+  "recommendations": [
+    {
+      "recommendation_id": "REC-VIO-001",
+      "related_issue_id": "VIO-001",
+      "title": "Xử lý dependency không phù hợp: Presentation → Data",
+      "priority": "HIGH",
+      "problem_summary": "Controller đang phụ thuộc trực tiếp vào Repository.",
+      "recommended_action": {
+        "approach": "Xem xét chuyển dependency qua Service theo quy tắc kiến trúc đã cung cấp.",
+        "steps": ["Kiểm tra vị trí evidence.", "Đối chiếu interface Service được kiến trúc cho phép.", "Chạy lại phân tích sau khi thay đổi."]
+      }
+    }
+  ],
+  "unresolved_items": ["Cần xác nhận LegacyPaymentModule có thuộc phạm vi kiến trúc hay không."]
+}
