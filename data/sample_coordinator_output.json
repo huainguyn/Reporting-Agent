@@ -1,48 +1,98 @@
 {
+  "schema_version": "1.0.0",
   "project_id": "demo-ecommerce",
-  "run_id": "run-demo-001",
   "project_name": "Demo E-commerce",
+  "run_id": "run-demo-001",
   "status": "COMPLETED",
-  "summary": "Coordinator đã tổng hợp kết quả phân tích kiến trúc và mã nguồn. Có một dependency vi phạm quy tắc phân tầng và một trường hợp cần xác minh thêm.",
+  "summary": "Coordinator đã tổng hợp kết quả phân tích kiến trúc và mã nguồn. Dữ liệu minh họa có một vi phạm, một trường hợp cần xác minh và một dependency tuân thủ.",
+  "architecture_summary": {
+    "architecture_style": "Layered Architecture",
+    "layers": ["Presentation", "Service", "Data"]
+  },
   "findings": [
     {
       "issue_id": "VIO-001",
+      "title": "Presentation phụ thuộc trực tiếp vào Data",
       "status": "VIOLATION",
+      "severity": "HIGH",
+      "confidence": 0.94,
       "source_module": "UserController",
       "target_module": "UserRepository",
-      "confidence": 0.94,
+      "dependency_type": "direct_dependency",
+      "rule_id": "RULE-03",
       "rule_description": "Presentation không được truy cập trực tiếp Data; cần đi qua Service.",
-      "evidence": [{"file_path": "src/presentation/UserController.java", "line_start": 24, "description": "UserController tham chiếu trực tiếp UserRepository."}]
+      "description": "UserController tham chiếu trực tiếp UserRepository, không tuân thủ quy tắc phân tầng đã cung cấp.",
+      "evidence": [
+        {
+          "file_path": "src/presentation/UserController.java",
+          "line_start": 24,
+          "line_end": 25,
+          "symbol": "UserController",
+          "description": "Có tham chiếu trực tiếp đến UserRepository."
+        }
+      ]
     },
     {
       "issue_id": "REV-002",
+      "title": "Dependency tới LegacyPaymentModule cần xác minh",
       "status": "REVIEW",
+      "severity": "MEDIUM",
+      "confidence": 0.58,
       "source_module": "OrderService",
       "target_module": "LegacyPaymentModule",
-      "confidence": 0.58,
-      "description": "Chưa đủ thông tin để kết luận dependency có phù hợp kiến trúc hay không."
+      "dependency_type": "module_dependency",
+      "description": "Chưa đủ thông tin để kết luận dependency có phù hợp kiến trúc hay không.",
+      "evidence": [],
+      "unresolved_items": ["Chưa xác nhận LegacyPaymentModule có thuộc phạm vi kiến trúc hiện tại hay không."]
     },
     {
       "issue_id": "CMP-003",
+      "title": "Service truy cập Repository theo quy tắc",
       "status": "COMPLIANT",
+      "severity": "INFO",
+      "confidence": 0.98,
       "source_module": "OrderService",
       "target_module": "OrderRepository",
-      "confidence": 0.98,
-      "description": "Dependency phù hợp với quy tắc kiến trúc."
+      "dependency_type": "direct_dependency",
+      "rule_id": "RULE-04",
+      "rule_description": "Service được phép truy cập Data thông qua Repository.",
+      "description": "Dependency phù hợp với quy tắc kiến trúc được cung cấp.",
+      "evidence": [
+        {
+          "file_path": "src/service/OrderService.java",
+          "line_start": 18,
+          "description": "OrderService sử dụng OrderRepository qua interface đã khai báo."
+        }
+      ]
     }
   ],
   "recommendations": [
     {
       "recommendation_id": "REC-VIO-001",
-      "related_issue_id": "VIO-001",
-      "title": "Xử lý dependency không phù hợp: Presentation → Data",
+      "related_finding_id": "VIO-001",
+      "title": "Đánh giá và lập phương án xử lý dependency Presentation → Data",
       "priority": "HIGH",
       "problem_summary": "Controller đang phụ thuộc trực tiếp vào Repository.",
       "recommended_action": {
-        "approach": "Xem xét chuyển dependency qua Service theo quy tắc kiến trúc đã cung cấp.",
-        "steps": ["Kiểm tra vị trí evidence.", "Đối chiếu interface Service được kiến trúc cho phép.", "Chạy lại phân tích sau khi thay đổi."]
-      }
+        "approach": "Đối chiếu kiến trúc mục tiêu và thiết kế phương án đưa dependency qua lớp Service theo rule đã cung cấp.",
+        "steps": [
+          "Kiểm tra evidence tại UserController.java.",
+          "Đối chiếu các interface Service hiện có với kiến trúc mục tiêu.",
+          "Thống nhất phương án với người phụ trách trước khi chỉnh sửa.",
+          "Chạy lại phân tích nhất quán sau khi thay đổi."
+        ]
+      },
+      "expected_benefit": "Giảm phụ thuộc trực tiếp giữa Presentation và Data, tăng mức tuân thủ quy tắc phân tầng.",
+      "risks": ["Cần rà soát các luồng gọi liên quan trước khi thay đổi dependency."],
+      "requires_human_review": true
     }
   ],
-  "unresolved_items": ["Cần xác nhận LegacyPaymentModule có thuộc phạm vi kiến trúc hay không."]
+  "unresolved_items": [
+    "Cần xác nhận LegacyPaymentModule có thuộc phạm vi kiến trúc hiện tại hay không."
+  ],
+  "metadata": {
+    "coordinator_version": "0.1.0",
+    "analysis_timestamp": "2026-11-16T10:00:00Z",
+    "agents_completed": ["ArchitectureExtractionAgent", "CodeAnalysisAgent", "ConsistencyCheckingAgent"]
+  }
 }

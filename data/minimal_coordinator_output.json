@@ -1,0 +1,7 @@
+{
+  "project_id": "small-project",
+  "run_id": "run-001",
+  "findings": [
+    {"id": "F-001", "status": "VIOLATION", "description": "Example violation from Coordinator"}
+  ]
+}
